@@ -22,4 +22,4 @@ set confirm off
 set confirm on
 
 # Load application symbols
-file C:/Users/Alvin Brandon/OneDrive/Desktop/smart_cocis_control/build/bootloader/bootloader.elf
+file D:/Projects/smart_cocis_control/build/bootloader/bootloader.elf

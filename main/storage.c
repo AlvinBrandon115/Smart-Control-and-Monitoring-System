@@ -119,6 +119,24 @@ bool storage_append(const char *name, const char *line)
     return ok;
 }
 
+bool storage_print_tail(const char *name, int n)
+{
+    if (!s_ready) return false;
+    char path[40], line[160]; snprintf(path, sizeof path, "/sdcard/%s", name);
+    storage_lock();
+    FILE *f = fopen(path, "r");
+    if (!f) { storage_unlock(); puts("  (no records yet)"); return true; }   /* SD is ready, the file just hasn't been created */
+    int total = 0;
+    while (fgets(line, sizeof line, f)) total++;
+    rewind(f);
+    int skip = total > n ? total - n : 0, i = 0;
+    while (fgets(line, sizeof line, f)) if (i++ >= skip) printf("  %s", line);
+    fclose(f);
+    storage_unlock();
+    if (total == 0) puts("  (no records yet)");
+    return true;
+}
+
 void storage_persist_task(void *arg)
 {
     for (;;) {

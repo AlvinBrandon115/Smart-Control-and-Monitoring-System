@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include <string.h>
+#include <time.h>
 #include "storage.h"
 #include "app_config.h"
 #include "logger.h"
@@ -13,6 +14,12 @@ static const char *TYPE_NAME[] = { "ACCESS", "ROOM", "CONFIG", "SYSTEM" };
 static log_msg_t s_ring[RING_N];
 static int s_ring_head, s_ring_count;
 static SemaphoreHandle_t s_ring_mutex;
+
+void time_str(time_t t, char out[20])
+{
+    struct tm tm; localtime_r(&t, &tm);
+    strftime(out, 20, "%Y-%m-%d %H:%M:%S", &tm);
+}
 
 void log_event(log_type_t type, const char *fmt, ...)
 {
@@ -29,7 +36,8 @@ void log_print_recent(int n)
     xSemaphoreTake(s_ring_mutex, portMAX_DELAY);
     for (int i = n; i > 0; i--) {
         log_msg_t *m = &s_ring[(s_ring_head - i + RING_N) % RING_N];
-        printf("  %lld,%s,%s\n", (long long)m->ts, TYPE_NAME[m->type], m->text);
+        char ts[20]; time_str(m->ts, ts);
+        printf("  %s,%s,%s\n", ts, TYPE_NAME[m->type], m->text);
     }
     xSemaphoreGive(s_ring_mutex);
 }
@@ -46,7 +54,8 @@ void logger_task(void *arg)
         s_ring[s_ring_head] = m; s_ring_head = (s_ring_head + 1) % RING_N;
         if (s_ring_count < RING_N) s_ring_count++;
         xSemaphoreGive(s_ring_mutex);
-        char out[128]; snprintf(out, sizeof out, "%lld,%s,%s\n", (long long)m.ts, TYPE_NAME[m.type], m.text);
+        char ts[20], out[160]; time_str(m.ts, ts);
+        snprintf(out, sizeof out, "%s,%s,%s\n", ts, TYPE_NAME[m.type], m.text);
         storage_append(m.type == LOG_ACCESS ? "access.csv" : m.type == LOG_ROOM ? "rooms.csv" : "system.log", out);
     }
 }

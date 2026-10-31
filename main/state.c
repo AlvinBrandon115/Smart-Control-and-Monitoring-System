@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "state.h"
+#include "logger.h"
 
 static SemaphoreHandle_t s_mutex;
 static user_t s_users[MAX_USERS];
@@ -10,6 +11,7 @@ static int s_open_min = 7 * 60, s_close_min = 20 * 60; /* default 07:00-20:00 */
 static bool s_override;
 static bool s_room[2];
 static bool s_emergency;
+static char s_last[17] = "No access yet";
 static uint8_t s_dirty;
 static TickType_t s_beat[T_COUNT];
 
@@ -71,7 +73,7 @@ void state_print_inside(void)
 {
     xSemaphoreTake(s_mutex, portMAX_DELAY);
     for (int i = 0; i < s_user_count; i++)
-        if (s_users[i].inside) printf("  %s (%s) since %lld\n", s_users[i].name, s_users[i].uid, (long long)s_users[i].since);
+        if (s_users[i].inside) { char ts[20]; time_str(s_users[i].since, ts); printf("  %s (%s) since %s\n", s_users[i].name, s_users[i].uid, ts); }
     xSemaphoreGive(s_mutex);
 }
 
@@ -152,5 +154,22 @@ void state_print_users(void)
 {
     xSemaphoreTake(s_mutex, portMAX_DELAY);
     for (int i = 0; i < s_user_count; i++) printf("  %-14s %-23s %s%s\n", s_users[i].uid, s_users[i].name, s_users[i].admin ? "admin " : "user  ", s_users[i].inside ? "(inside)" : "");
+    xSemaphoreGive(s_mutex);
+}
+
+void state_set_last(const char *t)
+{
+    xSemaphoreTake(s_mutex, portMAX_DELAY);
+    int i = 0;
+    for (; i < 16 && t[i]; i++) s_last[i] = t[i];
+    s_last[i] = 0;
+    xSemaphoreGive(s_mutex);
+}
+void state_get_last(char out[17])
+{
+    xSemaphoreTake(s_mutex, portMAX_DELAY);
+    int i = 0;
+    for (; s_last[i]; i++) out[i] = s_last[i];
+    out[i] = 0;
     xSemaphoreGive(s_mutex);
 }

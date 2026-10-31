@@ -1,4 +1,4 @@
-# Install script for directory: C:/Users/Alvin Brandon/OneDrive/Desktop/smart_cocis_control/main
+# Install script for directory: D:/Projects/smart_cocis_control/main
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)

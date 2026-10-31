@@ -10,18 +10,18 @@ if(NOT EXISTS "D:/Development/Espressif/frameworks/esp-idf-v5.5.6/components/boo
   file(MAKE_DIRECTORY "D:/Development/Espressif/frameworks/esp-idf-v5.5.6/components/bootloader/subproject")
 endif()
 file(MAKE_DIRECTORY
-  "C:/Users/Alvin Brandon/OneDrive/Desktop/smart_cocis_control/build/bootloader"
-  "C:/Users/Alvin Brandon/OneDrive/Desktop/smart_cocis_control/build/bootloader-prefix"
-  "C:/Users/Alvin Brandon/OneDrive/Desktop/smart_cocis_control/build/bootloader-prefix/tmp"
-  "C:/Users/Alvin Brandon/OneDrive/Desktop/smart_cocis_control/build/bootloader-prefix/src/bootloader-stamp"
-  "C:/Users/Alvin Brandon/OneDrive/Desktop/smart_cocis_control/build/bootloader-prefix/src"
-  "C:/Users/Alvin Brandon/OneDrive/Desktop/smart_cocis_control/build/bootloader-prefix/src/bootloader-stamp"
+  "D:/Projects/smart_cocis_control/build/bootloader"
+  "D:/Projects/smart_cocis_control/build/bootloader-prefix"
+  "D:/Projects/smart_cocis_control/build/bootloader-prefix/tmp"
+  "D:/Projects/smart_cocis_control/build/bootloader-prefix/src/bootloader-stamp"
+  "D:/Projects/smart_cocis_control/build/bootloader-prefix/src"
+  "D:/Projects/smart_cocis_control/build/bootloader-prefix/src/bootloader-stamp"
 )
 
 set(configSubDirs )
 foreach(subDir IN LISTS configSubDirs)
-    file(MAKE_DIRECTORY "C:/Users/Alvin Brandon/OneDrive/Desktop/smart_cocis_control/build/bootloader-prefix/src/bootloader-stamp/${subDir}")
+    file(MAKE_DIRECTORY "D:/Projects/smart_cocis_control/build/bootloader-prefix/src/bootloader-stamp/${subDir}")
 endforeach()
 if(cfgdir)
-  file(MAKE_DIRECTORY "C:/Users/Alvin Brandon/OneDrive/Desktop/smart_cocis_control/build/bootloader-prefix/src/bootloader-stamp${cfgdir}") # cfgdir has leading slash
+  file(MAKE_DIRECTORY "D:/Projects/smart_cocis_control/build/bootloader-prefix/src/bootloader-stamp${cfgdir}") # cfgdir has leading slash
 endif()

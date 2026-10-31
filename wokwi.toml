@@ -1,6 +1,4 @@
 [wokwi]
 version = 1
-# ESP-IDF build output: flasher_args.json lists the bootloader, partition table and app binaries
 firmware = 'build/flasher_args.json'
-# Debug symbols (name = the project name in the root CMakeLists.txt)
 elf = 'build/cocis_smart_control.elf'

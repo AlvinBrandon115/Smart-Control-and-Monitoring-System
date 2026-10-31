@@ -21,6 +21,9 @@
 #define PIN_ROOM2_LIGHT 2
 #define PIN_BUZZER     15
 
+#define PIN_BTN_EMERGENCY  0    /* push button to GND, internal pull-up (GPIO0/12 are boot pins: do not hold at reset) */
+#define PIN_BTN_PAGE      12    /* push button to GND: cycles the LCD pages */
+#define LCD_I2C_ADDR    0x27    /* 16x2 LCD with I2C backpack (PCF8574) */
 #define DOOR_OPEN_MS        3000
 #define SERVO_CLOSED_US      544   /* pulse width for 0 degrees (door closed) */
 #define SERVO_OPEN_US       1472   /* about 90 degrees (door open): tune in Wokwi */

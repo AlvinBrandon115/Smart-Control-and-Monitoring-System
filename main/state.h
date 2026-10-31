@@ -35,5 +35,8 @@ const char *terminal_name(terminal_t t);
 void emergency_set(bool on);                /* emergency exit override */
 bool emergency_get(void);
 
+void state_set_last(const char *text);          /* last access result, shown on the LCD */
+void state_get_last(char out[17]);
+
 void room_state_set(uint8_t room, bool occupied);
 bool room_state_get(uint8_t room);

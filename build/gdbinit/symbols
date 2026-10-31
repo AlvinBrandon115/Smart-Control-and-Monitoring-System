@@ -18,8 +18,8 @@ end
 
 # Load bootloader symbols
 set confirm off
-    add-symbol-file C:/Users/Alvin Brandon/OneDrive/Desktop/smart_cocis_control/build/bootloader/bootloader.elf
+    add-symbol-file D:/Projects/smart_cocis_control/build/bootloader/bootloader.elf
 set confirm on
 
 # Load application symbols
-file C:/Users/Alvin Brandon/OneDrive/Desktop/smart_cocis_control/build/cocis_smart_control.elf
+file D:/Projects/smart_cocis_control/build/cocis_smart_control.elf

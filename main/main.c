@@ -16,6 +16,7 @@ void app_main(void)
     q_room = xQueueCreate(8, sizeof(room_msg_t));
     q_log  = xQueueCreate(32, sizeof(log_msg_t));
     state_init();
+    i2c_bus_init();
     storage_init();
     auth_init();
     mfrc522_bus_init();
@@ -28,6 +29,8 @@ void app_main(void)
     xTaskCreate(room_task,        "room1",   3072, (void *)0, 4, NULL);
     xTaskCreate(room_task,        "room2",   3072, (void *)1, 4, NULL);
     xTaskCreate(schedule_task,    "sched",   3072, NULL, 3, NULL);
+    xTaskCreate(button_task,      "buttons", 3072, NULL, 4, NULL);
+    xTaskCreate(display_task,     "display", 4096, NULL, 2, NULL);
     xTaskCreate(storage_persist_task, "persist", 4096, NULL, 3, NULL);
     xTaskCreate(monitor_task,     "monitor", 3072, NULL, 3, NULL);
     xTaskCreate(serial_menu_task, "menu",    4096, NULL, 2, NULL);

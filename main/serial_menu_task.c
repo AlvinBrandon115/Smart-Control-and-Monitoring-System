@@ -8,6 +8,7 @@
 #include "logger.h"
 #include "tasks.h"
 #include "auth.h"
+#include "storage.h"
 #include "driver/uart.h"
 
 /* Reads typed characters straight from UART0 (the console). Echoes them, handles backspace,
@@ -32,8 +33,8 @@ static bool read_line(char *out, size_t n)
 
 static void help(bool admin)
 {
-    puts("Commands: help, login <user> <password>, logout, status, health, time, inside, rooms, log [n]");
-    if (admin) puts("Admin: schedule show | schedule set HH:MM HH:MM | override on|off | emergency on|off | time set YYYY-MM-DD HH:MM:SS | passwd <new> | user list | user add <UID> <name> | user del <UID>");
+    puts("Commands: help, login <user> <password>, logout, status, health, time, inside, rooms, log [n], records [access|rooms|system] [n]");
+    if (admin) puts("Admin: schedule show | schedule set HH:MM HH:MM | override on|off | emergency on|off | time set YYYY-MM-DD HH:MM:SS | passwd <new> | user list | user add <UID> <name> [admin] | user del <UID>");
 }
 
 void serial_menu_task(void *arg)
@@ -61,9 +62,11 @@ void serial_menu_task(void *arg)
         }
         else if (admin && !strcmp(a, "user") && !strcmp(b, "list")) state_print_users();
         else if (admin && !strcmp(a, "user") && !strcmp(b, "add")) {
-            char uid[15], nm[24];
-            if (sscanf(line, "user add %14s %23s", uid, nm) == 2 && state_user_add(uid, nm, false)) { log_event(LOG_CONFIG, "user added,%s,%s", uid, nm); puts("User added (saved to SD shortly)"); }
-            else puts("Usage: user add <UID> <name>  (UID must be new)");
+            char uid[15], nm[24], role[8] = "";
+            int k = sscanf(line, "user add %14s %23s %7s", uid, nm, role);
+            bool adm = !strcmp(role, "admin");
+            if (k >= 2 && state_user_add(uid, nm, adm)) { log_event(LOG_CONFIG, "user added,%s,%s,%s", uid, nm, adm ? "admin tag" : "user"); puts("User added (saved to SD shortly)"); }
+            else puts("Usage: user add <UID> <name> [admin]  (UID must be new)");
         }
         else if (admin && !strcmp(a, "user") && !strcmp(b, "del")) {
             if (state_user_remove(c)) { log_event(LOG_CONFIG, "user removed,%s", c); puts("User removed"); } else puts("No such user");
@@ -79,6 +82,13 @@ void serial_menu_task(void *arg)
             if (sscanf(line, "time set %d-%d-%d %d:%d:%d", &y, &mo, &d, &h, &mi, &s) == 6 && clock_set(y, mo, d, h, mi, s)) { log_event(LOG_CONFIG, "time set %04d-%02d-%02d %02d:%02d:%02d", y, mo, d, h, mi, s); puts("Time set"); }
             else puts("Usage: time set YYYY-MM-DD HH:MM:SS");
         }
+        else if (!strcmp(a, "records")) {
+            const char *file = !strcmp(b, "rooms") ? "rooms.csv" : !strcmp(b, "system") ? "system.log" : "access.csv";
+            int n = atoi(c[0] ? c : (atoi(b) > 0 ? b : "10"));
+            if (n < 1) n = 10;
+            if (n > 50) n = 50;
+            if (!storage_print_tail(file, n)) puts("No records: SD card missing or file not created yet");
+        }
         else if (!strcmp(a, "log")) log_print_recent(b[0] ? atoi(b) : 10);
         else if (admin && !strcmp(a, "schedule") && !strcmp(b, "show")) { int o, cl; schedule_get(&o, &cl); printf("%02d:%02d-%02d:%02d\n", o / 60, o % 60, cl / 60, cl % 60); }
         else if (admin && !strcmp(a, "schedule") && !strcmp(b, "set")) {
@@ -88,10 +98,7 @@ void serial_menu_task(void *arg)
         }
         else if (admin && !strcmp(a, "emergency")) {
             bool on = !strcmp(b, "on");
-            emergency_set(on);
-            door_msg_t dm = { GATE_EXIT, on ? DOOR_CMD_HOLD_OPEN : DOOR_CMD_CLOSE };
-            xQueueSend(q_door, &dm, 0);
-            log_event(LOG_CONFIG, "EMERGENCY %s", on ? "ACTIVATED: exit door held open" : "CLEARED");
+            emergency_apply(on, who);
             puts(on ? "EMERGENCY ACTIVE: exit door open, alarm sounding" : "Emergency cleared");
         }
         else if (admin && !strcmp(a, "override")) { override_set(!strcmp(b, "on")); log_event(LOG_CONFIG, "override %s", b); puts("Done"); }

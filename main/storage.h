@@ -11,4 +11,5 @@ bool storage_commit(const char *tmp_path, const char *final_path);   /* replace 
 bool storage_append(const char *file_name, const char *line);
 bool storage_save_users(void);
 bool storage_save_config(void);
+bool storage_print_tail(const char *file_name, int n);   /* prints the last n lines of a log file on the SD card */
 void storage_persist_task(void *arg);        /* saves users/schedule shortly after they change */

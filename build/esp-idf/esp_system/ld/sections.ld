@@ -1,6 +1,6 @@
 /* Automatically generated file; DO NOT EDIT */
 /* Espressif IoT Development Framework Linker Script */
-/* Generated from: C:\Users\Alvin Brandon\OneDrive\Desktop\smart_cocis_control\build\esp-idf\esp_system\ld\sections.ld.in */
+/* Generated from: D:\Projects\smart_cocis_control\build\esp-idf\esp_system\ld\sections.ld.in */
 
 /*
 

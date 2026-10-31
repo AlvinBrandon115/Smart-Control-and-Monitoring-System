@@ -65,11 +65,19 @@ static void use_build_time(void)                           /* fallback so the sy
     set_system_time(&t); s_source = "build time";
 }
 
-void schedule_task(void *arg)
+static bool s_i2c_ok;
+
+bool i2c_bus_init(void)
 {
     i2c_config_t cfg = { .mode = I2C_MODE_MASTER, .sda_io_num = PIN_I2C_SDA, .scl_io_num = PIN_I2C_SCL,
                          .sda_pullup_en = true, .scl_pullup_en = true, .master.clk_speed = 100000 };
-    bool i2c_ok = i2c_param_config(I2C_PORT, &cfg) == ESP_OK && i2c_driver_install(I2C_PORT, cfg.mode, 0, 0, 0) == ESP_OK;
+    s_i2c_ok = i2c_param_config(I2C_PORT, &cfg) == ESP_OK && i2c_driver_install(I2C_PORT, cfg.mode, 0, 0, 0) == ESP_OK;
+    return s_i2c_ok;
+}
+
+void schedule_task(void *arg)
+{
+    bool i2c_ok = s_i2c_ok;
     struct tm t;
     if (i2c_ok && rtc_read(&t)) { set_system_time(&t); s_source = "RTC"; log_event(LOG_SYSTEM, "Clock set from RTC"); }
     else { use_build_time(); log_event(LOG_SYSTEM, "RTC not set or not found: using %s", s_source); }

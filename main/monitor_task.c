@@ -5,6 +5,14 @@
 #include "logger.h"
 #include "tasks.h"
 
+void emergency_apply(bool on, const char *source)
+{
+    emergency_set(on);
+    door_msg_t m = { GATE_EXIT, on ? DOOR_CMD_HOLD_OPEN : DOOR_CMD_CLOSE };
+    xQueueSend(q_door, &m, 0);
+    log_event(LOG_CONFIG, "EMERGENCY %s,by %s", on ? "ACTIVATED (exit door held open)" : "CLEARED", source);
+}
+
 static void sound_alarm(void) { door_msg_t m = { GATE_EXIT, DOOR_CMD_ALARM }; xQueueSend(q_door, &m, 0); }
 
 void monitor_task(void *arg)
